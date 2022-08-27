@@ -59,11 +59,18 @@ class TheDotPluginUI : IDisposable
                 ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse))
         {
             // can't ref a property, so use a local copy
-            var configValue = this.configuration.ShowDotAlways;
-            if (ImGui.Checkbox("Show Dot Always", ref configValue))
+            var showDotValue = this.configuration.ShowDotAlways;
+            if (ImGui.Checkbox("Show Dot Always", ref showDotValue))
             {
-                this.configuration.ShowDotAlways = configValue;
+                this.configuration.ShowDotAlways = showDotValue;
                 // can save immediately on change, if you don't want to provide a "Save and Close" button
+                this.configuration.Save();
+            }
+
+            var dotSize = this.configuration.DotSize;
+            if (ImGui.InputFloat("Dot Size", ref dotSize))
+            {
+                this.configuration.DotSize = dotSize;
                 this.configuration.Save();
             }
         }

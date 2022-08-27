@@ -6,7 +6,7 @@ using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Game.Gui;
 using Dalamud.Interface;
 using ImGuiNET;
-using Num = System.Numerics;
+using NUM = System.Numerics;
 
 namespace TheDotPlugin;
 
@@ -14,7 +14,7 @@ public sealed class TheDotPlugin : IDalamudPlugin
 {
     public string Name => "TheDot Plugin";
 
-    private const string commandName = "/thedot";
+    private const string CommandName = "/thedot";
 
     private DalamudPluginInterface PluginInterface { get; init; }
     private CommandManager CommandManager { get; init; }
@@ -46,7 +46,7 @@ public sealed class TheDotPlugin : IDalamudPlugin
         // var goatImage = this.PluginInterface.UiBuilder.LoadImage(imagePath);
         PluginUi = new TheDotPluginUI(Configuration);
 
-        CommandManager.AddHandler(commandName, new CommandInfo(OnCommand)
+        CommandManager.AddHandler(CommandName, new CommandInfo(OnCommand)
         {
             HelpMessage = "uh, it's a dot..."
         });
@@ -58,7 +58,7 @@ public sealed class TheDotPlugin : IDalamudPlugin
     public void Dispose()
     {
         this.PluginUi.Dispose();
-        this.CommandManager.RemoveHandler(commandName);
+        this.CommandManager.RemoveHandler(CommandName);
     }
 
     private void OnCommand(string command, string args)
@@ -78,21 +78,18 @@ public sealed class TheDotPlugin : IDalamudPlugin
             return;
 
         if (!GameGui.WorldToScreen(
-                new Num.Vector3(actor.Position.X, actor.Position.Y, actor.Position.Z),
+                new NUM.Vector3(actor.Position.X, actor.Position.Y, actor.Position.Z),
                 out var pos)) return;
         
-        ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, new Num.Vector2(0, 0));
-        ImGuiHelpers.ForceNextWindowMainViewport();
-        ImGuiHelpers.SetNextWindowPosRelativeMainViewport(new Num.Vector2(0, 0));
         ImGui.Begin("Dot",
             ImGuiWindowFlags.NoInputs | ImGuiWindowFlags.NoNav | ImGuiWindowFlags.NoTitleBar |
             ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoBackground);
         ImGui.SetWindowSize(ImGui.GetIO().DisplaySize);
         
         ImGui.GetWindowDrawList().AddCircleFilled(
-            new Num.Vector2(pos.X, pos.Y),
-            4f,
-            ImGui.GetColorU32(new Num.Vector4(0f, 1.0f, 0f, 1.0f)),
+            new NUM.Vector2(pos.X, pos.Y),
+            Configuration.DotSize,
+            ImGui.GetColorU32(new NUM.Vector4(0f, 1.0f, 0f, 1.0f)),
             100);
     }
 
