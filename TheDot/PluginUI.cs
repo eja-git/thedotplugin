@@ -10,8 +10,6 @@ class TheDotPluginUI : IDisposable
 {
     private Configuration configuration;
 
-    private ImGuiScene.TextureWrap goatImage;
-
     // this extra bool exists for ImGui, since you can't ref a property
     private bool visible = false;
     public bool Visible
@@ -28,15 +26,13 @@ class TheDotPluginUI : IDisposable
     }
 
     // passing in the image here just for simplicity
-    public TheDotPluginUI(Configuration configuration, ImGuiScene.TextureWrap goatImage)
+    public TheDotPluginUI(Configuration configuration)
     {
         this.configuration = configuration;
-        this.goatImage = goatImage;
     }
 
     public void Dispose()
     {
-        this.goatImage.Dispose();
     }
 
     public void Draw()
@@ -48,36 +44,7 @@ class TheDotPluginUI : IDisposable
         // There are other ways to do this, but it is generally best to keep the number of
         // draw delegates as low as possible.
 
-        DrawMainWindow();
         DrawSettingsWindow();
-    }
-
-    public void DrawMainWindow()
-    {
-        if (!Visible)
-        {
-            return;
-        }
-
-        ImGui.SetNextWindowSize(new Vector2(375, 330), ImGuiCond.FirstUseEver);
-        ImGui.SetNextWindowSizeConstraints(new Vector2(375, 330), new Vector2(float.MaxValue, float.MaxValue));
-        if (ImGui.Begin("My Amazing Window", ref this.visible, ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse))
-        {
-            ImGui.Text($"The random config bool is {this.configuration.SomePropertyToBeSavedAndWithADefault}");
-
-            if (ImGui.Button("Show Settings"))
-            {
-                SettingsVisible = true;
-            }
-
-            ImGui.Spacing();
-
-            ImGui.Text("Have a chaos goat:");
-            ImGui.Indent(55);
-            ImGui.Image(this.goatImage.ImGuiHandle, new Vector2(this.goatImage.Width, this.goatImage.Height));
-            ImGui.Unindent(55);
-        }
-        ImGui.End();
     }
 
     public void DrawSettingsWindow()
@@ -88,14 +55,14 @@ class TheDotPluginUI : IDisposable
         }
 
         ImGui.SetNextWindowSize(new Vector2(232, 75), ImGuiCond.Always);
-        if (ImGui.Begin("A Wonderful Configuration Window", ref this.settingsVisible,
+        if (ImGui.Begin("The Dot Configuration Window", ref this.settingsVisible,
                 ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse))
         {
             // can't ref a property, so use a local copy
-            var configValue = this.configuration.SomePropertyToBeSavedAndWithADefault;
-            if (ImGui.Checkbox("Random Config Bool", ref configValue))
+            var configValue = this.configuration.ShowDotAlways;
+            if (ImGui.Checkbox("Show Dot Always", ref configValue))
             {
-                this.configuration.SomePropertyToBeSavedAndWithADefault = configValue;
+                this.configuration.ShowDotAlways = configValue;
                 // can save immediately on change, if you don't want to provide a "Save and Close" button
                 this.configuration.Save();
             }

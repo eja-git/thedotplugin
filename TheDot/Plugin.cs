@@ -1,8 +1,12 @@
 ﻿using Dalamud.Game.Command;
 using Dalamud.IoC;
 using Dalamud.Plugin;
-using System.IO;
-using System.Reflection;
+using Dalamud.Game.ClientState;
+using Dalamud.Game.ClientState.Conditions;
+using Dalamud.Game.Gui;
+using Dalamud.Interface;
+using ImGuiNET;
+using Num = System.Numerics;
 
 namespace TheDotPlugin;
 
@@ -17,28 +21,38 @@ public sealed class TheDotPlugin : IDalamudPlugin
     private Configuration Configuration { get; init; }
     private TheDotPluginUI PluginUi { get; init; }
 
+    private ClientState ClientState { get; init; }
+    private GameGui GameGui { get; init; }
+    private Condition Condition { get; init; }
+    
     public TheDotPlugin(
         [RequiredVersion("1.0")] DalamudPluginInterface pluginInterface,
-        [RequiredVersion("1.0")] CommandManager commandManager)
+        [RequiredVersion("1.0")] CommandManager commandManager,
+        [RequiredVersion("1.0")] ClientState clientState,
+        [RequiredVersion("1.0")] GameGui gameGui,
+        [RequiredVersion("1.0")] Condition condition)
     {
-        this.PluginInterface = pluginInterface;
-        this.CommandManager = commandManager;
+        PluginInterface = pluginInterface;
+        CommandManager = commandManager;
+        ClientState = clientState;
+        GameGui = gameGui;
+        Condition = condition;
 
-        this.Configuration = this.PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
-        this.Configuration.Initialize(this.PluginInterface);
+        Configuration = PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
+        Configuration.Initialize(PluginInterface);
 
         // you might normally want to embed resources and load them from the manifest stream
-        var imagePath = Path.Combine(PluginInterface.AssemblyLocation.Directory?.FullName!, "goat.png");
-        var goatImage = this.PluginInterface.UiBuilder.LoadImage(imagePath);
-        this.PluginUi = new TheDotPluginUI(this.Configuration, goatImage);
+        // var imagePath = Path.Combine(PluginInterface.AssemblyLocation.Directory?.FullName!, "goat.png");
+        // var goatImage = this.PluginInterface.UiBuilder.LoadImage(imagePath);
+        PluginUi = new TheDotPluginUI(Configuration);
 
-        this.CommandManager.AddHandler(commandName, new CommandInfo(OnCommand)
+        CommandManager.AddHandler(commandName, new CommandInfo(OnCommand)
         {
-            HelpMessage = "A useful message to display in /xlhelp"
+            HelpMessage = "uh, it's a dot..."
         });
 
-        this.PluginInterface.UiBuilder.Draw += DrawUI;
-        this.PluginInterface.UiBuilder.OpenConfigUi += DrawConfigUI;
+        PluginInterface.UiBuilder.Draw += DrawUI;
+        PluginInterface.UiBuilder.OpenConfigUi += DrawConfigUI;
     }
 
     public void Dispose()
@@ -49,17 +63,41 @@ public sealed class TheDotPlugin : IDalamudPlugin
 
     private void OnCommand(string command, string args)
     {
-        // in response to the slash command, just display our main ui
-        this.PluginUi.Visible = true;
+        DrawConfigUI();
     }
 
     private void DrawUI()
     {
         this.PluginUi.Draw();
+        var actor = ClientState.LocalPlayer;
+        
+        if (actor == null)
+            return;
+
+        if (!Condition[ConditionFlag.InCombat] && !Configuration.ShowDotAlways)
+            return;
+
+        if (!GameGui.WorldToScreen(
+                new Num.Vector3(actor.Position.X, actor.Position.Y, actor.Position.Z),
+                out var pos)) return;
+        
+        ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, new Num.Vector2(0, 0));
+        ImGuiHelpers.ForceNextWindowMainViewport();
+        ImGuiHelpers.SetNextWindowPosRelativeMainViewport(new Num.Vector2(0, 0));
+        ImGui.Begin("Dot",
+            ImGuiWindowFlags.NoInputs | ImGuiWindowFlags.NoNav | ImGuiWindowFlags.NoTitleBar |
+            ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoBackground);
+        ImGui.SetWindowSize(ImGui.GetIO().DisplaySize);
+        
+        ImGui.GetWindowDrawList().AddCircleFilled(
+            new Num.Vector2(pos.X, pos.Y),
+            4f,
+            ImGui.GetColorU32(new Num.Vector4(0f, 1.0f, 0f, 1.0f)),
+            100);
     }
 
     private void DrawConfigUI()
     {
-        this.PluginUi.SettingsVisible = true;
+        PluginUi.SettingsVisible = true;
     }
 }
