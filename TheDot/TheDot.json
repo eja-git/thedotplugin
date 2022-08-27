@@ -1,0 +1,11 @@
+{
+  "Author": "eja-git",
+  "Name": "TheDot",
+  "Punchline": "A dot to mark players hitbox.",
+  "Description": "A dot to mark players hitbox",
+  "InternalName": "theDot",
+  "ApplicableVersion": "any",
+  "Tags": [
+    "thedot"
+  ]
+}
