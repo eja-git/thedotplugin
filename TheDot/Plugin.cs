@@ -84,6 +84,7 @@ public sealed class TheDotPlugin : IDalamudPlugin
         ImGui.Begin("Dot",
             ImGuiWindowFlags.NoInputs | ImGuiWindowFlags.NoNav | ImGuiWindowFlags.NoTitleBar |
             ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoBackground);
+        
         ImGui.SetWindowSize(ImGui.GetIO().DisplaySize);
         
         ImGui.GetWindowDrawList().AddCircleFilled(
@@ -91,6 +92,8 @@ public sealed class TheDotPlugin : IDalamudPlugin
             Configuration.DotSize,
             ImGui.GetColorU32(new NUM.Vector4(0f, 1.0f, 0f, 1.0f)),
             100);
+        
+        ImGui.End();
     }
 
     private void DrawConfigUI()

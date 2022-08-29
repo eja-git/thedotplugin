@@ -54,7 +54,7 @@ class TheDotPluginUI : IDisposable
             return;
         }
 
-        ImGui.SetNextWindowSize(new Vector2(232, 75), ImGuiCond.Always);
+        ImGui.SetNextWindowSize(new Vector2(232, 100), ImGuiCond.Always);
         if (ImGui.Begin("The Dot Configuration Window", ref this.settingsVisible,
                 ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse))
         {
